@@ -1,6 +1,7 @@
 const express = require('express')
 const { NotFoundException } = require('./common/exceptions')
 const errorMiddleware = require('./middlewares/error.middleware')
+require('dotenv').config()
 
 class App {
   constructor(controllers) {
