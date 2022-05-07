@@ -1,9 +1,8 @@
 const { UnauthorizedException } = require("../common/exceptions")
 
 const verifyUser = (req, _res, next) => {
-  const { email } = req.session
-  console.log(email)
-  if (!email) {
+  const { id } = req.session
+  if (!id) {
     next(new UnauthorizedException('login first.'))
   }
   next()

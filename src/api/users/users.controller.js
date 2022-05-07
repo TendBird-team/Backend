@@ -2,7 +2,7 @@ const { Router } = require('express')
 const UserService = require('./users.service')
 const UserRepository = require('./users.repository')
 const wrapper = require('../../lib/request-handler')
-const { BadRequestException } = require('../../common/exceptions')
+const { BadRequestException, UnauthorizedException } = require('../../common/exceptions')
 const verifyUser = require('../../middlewares/auth.middeware')
 const EMAIL_REGEX = new RegExp('[a-zA-Z0-9-_]+@likelion.org')
 
@@ -35,7 +35,7 @@ class UserController {
     }
 
     const user = await this.userService.loginService(email, password)
-    req.session.email = user.email
+    req.session.id = user.email
     return {
       message: 'Login success.',
       data: {
@@ -45,10 +45,13 @@ class UserController {
   }
 
   async firstLoginController(req, res) {
-    const { email } = req.session
-    const { password, nickname } = req.body
+    const { id } = req.session
+    const { email, password, nickname } = req.body
     if (!email || !password || !nickname) {
       throw new BadRequestException('Wrong body info.')
+    }
+    if (email !== id) {
+      throw new UnauthorizedException('Wrong user info.')
     }
     return this.userService.firstLoginService(email, password, nickname)
   }
