@@ -28,7 +28,8 @@ class UserRepository {
         password,
         nickname,
         firstlogin: false,
-      })
+      }
+    ).exec()
   }
 
   async create(email, hash, name, nickname) {
