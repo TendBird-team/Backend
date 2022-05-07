@@ -35,7 +35,7 @@ class UserController {
     }
 
     const user = await this.userService.loginService(email, password)
-    req.session.id = user.email
+    req.session.userEmail = user.email
     return {
       message: 'Login success.',
       data: {
@@ -45,12 +45,12 @@ class UserController {
   }
 
   async firstLoginController(req, res) {
-    const { id } = req.session
+    const { userEmail } = req.session
     const { email, password, nickname } = req.body
     if (!email || !password || !nickname) {
       throw new BadRequestException('Wrong body info.')
     }
-    if (email !== id) {
+    if (email !== userEmail) {
       throw new UnauthorizedException('Wrong user info.')
     }
     return this.userService.firstLoginService(email, password, nickname)
