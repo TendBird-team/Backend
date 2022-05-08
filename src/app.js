@@ -22,16 +22,14 @@ class App {
 
   initializeCors() {
     // TODO: 실제 프로덕션 배포시에는 바꾸어야함.
-  
-    const corsOpt = {
-      origin: function(origin, callback){
-        const isTrue = domains.indexOf(origin) !== -1;
-        callback(null, isTrue);
-      },
-      credentials: true
-    }
-    this.app.options('*', cors(corsOpt));
-    this.app.use(cors(corsOpt))
+    this.app.use(cors({
+      origin: '*',
+      allowHeaders: 'Content-Type',
+      methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
+      preflightContinue: true,
+      credentials: true,
+      optionsSuccessStatus: 200,
+    }))
   }
 
   initializeErrorHandling() {
