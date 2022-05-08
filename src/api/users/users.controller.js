@@ -36,6 +36,7 @@ class UserController {
 
     const user = await this.userService.loginService(email, password)
     req.session.userEmail = user.email
+    req.session.save();
     return {
       message: 'Login success.',
       data: {
