@@ -30,6 +30,7 @@
     "passport": "^0.5.2",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "serve-favicon": "^2.5.0"
   }
 }

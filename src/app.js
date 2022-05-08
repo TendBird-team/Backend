@@ -5,6 +5,8 @@ const session = require('express-session')
 const MongoStore = require('connect-mongo');
 const cors = require('cors')
 const morgan = require('morgan')
+const favicon = require('serve-favicon')
+const path = require('path')
 require('dotenv').config()
 
 class App {
@@ -18,7 +20,7 @@ class App {
   }
 
   initializeCors() {
-    const domains = ['http://localhost:4000', 'http://localhost:4052'];
+    const domains = ['*'];
     this.app.use(
       cors({
         origin(origin, callback) {
@@ -54,6 +56,7 @@ class App {
     this.app.use(morgan('common'));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(favicon(path.join(__dirname, '../public/images', 'favicon.ico')));
   }
 
   initializeNotFoundMiddleware() {
