@@ -7,14 +7,15 @@ const cors = require('cors')
 const morgan = require('morgan')
 const favicon = require('serve-favicon')
 const path = require('path')
+const cookieParser = require('cookie-parser')
 require('dotenv').config()
 
 class App {
   constructor(controllers) {
     this.app = express()
 
-    this.initializeCors()
     this.initializeMiddleware()
+    this.initializeCors()
     this.initialzeControllers(controllers)
     this.initializeNotFoundMiddleware()
     this.initializeErrorHandling()
@@ -22,14 +23,21 @@ class App {
 
   initializeCors() {
     // TODO: 실제 프로덕션 배포시에는 바꾸어야함.
-    this.app.use(cors({
-      origin: 'https://6277851978de7a22dbe2d20e--peaceful-parfait-bec695.netlify.app',
+    const domains = [
+      'https://6277851978de7a22dbe2d20e--peaceful-parfait-bec695.netlify.app',
+    ]
+    const corsOptions = {
+      origin(origin, callback) {
+        const isTrue = domains.indexOf(origin) !== -1
+        callback(null, isTrue)
+      },
       allowHeaders: 'Content-Type',
-      methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
+      methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
       preflightContinue: false,
       credentials: true,
       optionsSuccessStatus: 200,
-    }))
+    }
+    this.app.use(cors(corsOptions))
   }
 
   initializeErrorHandling() {
@@ -37,22 +45,19 @@ class App {
   }
 
   initializeMiddleware() {
-    this.app.use(session({
-      secret: process.env.SECRET,
-      saveUninitialized: true,
-      resave: false,
-      ttl: 14 * 24 * 60 * 60,
-      touchAfter: 24 * 3600,
-      autoRemove: 'interval',
-      autoRemoveInterval: 10,
-      store: new MongoStore({
-        mongoUrl: process.env.DB_URI,
-      }),
-      cookie: {
-        secure: true,
-        httpOnly: true,
-      },
-    }))
+    this.app.use(cookieParser(process.env.SECRET));
+    this.app.use(
+      session({
+        resave: false,
+        saveUninitialized: false,
+        secret: [process.env.SECRET, process.env.SECRET],
+        cookie: {
+          httpOnly: true,
+          secure: false,
+        },
+        name: 'session-cookie',
+      })
+    )
     this.app.use(morgan('common'));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
