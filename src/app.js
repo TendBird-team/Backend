@@ -54,7 +54,7 @@ class App {
         secret: [process.env.SECRET, process.env.SECRET],
         cookie: {
           httpOnly: true,
-          secure: false,
+          secure: true,
         },
         name: 'session-cookie',
       })

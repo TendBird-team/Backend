@@ -68,7 +68,12 @@ class UserController {
   }
 
   async loginCheckController(req, res) {
-    return {}
+    const { userEmail } = req.session || req.cookie
+    return {
+      data: {
+        userEmail,
+      }
+    }
   }
 }
 

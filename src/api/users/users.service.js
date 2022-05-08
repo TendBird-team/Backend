@@ -17,7 +17,7 @@ class UserService {
   async loginService(email, password) {
     const user = await this.#checkUser(email, password)
     return {
-      email: user.email,
+      userEmail: user.email,
       name: user.name,
       nickname: user.nickname,
       firstlogin: user.firstlogin,
