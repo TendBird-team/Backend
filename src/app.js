@@ -13,6 +13,7 @@ class App {
   constructor(controllers) {
     this.app = express()
 
+    this.initializeCors()
     this.initializeMiddleware()
     this.initialzeControllers(controllers)
     this.initializeNotFoundMiddleware()
