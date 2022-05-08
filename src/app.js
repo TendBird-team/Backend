@@ -20,21 +20,20 @@ class App {
   }
 
   initializeCors() {
-    // this.app.use
-    // const domains = ['*'];
-    // this.app.use(
-    //   cors({
-    //     origin(origin, callback) {
-    //       const isTrue = domains.indexOf(origin) !== -1;
-    //       callback(null, isTrue);
-    //     },
-    //     allowHeaders: 'Content-Type',
-    //     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
-    //     preflightContinue: false,
-    //     credentials: true,
-    //     optionsSuccessStatus: 200,
-    //   })
-    // );
+    const domains = ['*'];
+    this.app.use(
+      cors({
+        origin(origin, callback) {
+          const isTrue = domains.indexOf(origin) !== -1;
+          callback(null, isTrue);
+        },
+        allowHeaders: 'Content-Type',
+        methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
+        preflightContinue: false,
+        credentials: true,
+        optionsSuccessStatus: 200,
+      })
+    );
   }
 
   initializeErrorHandling() {
