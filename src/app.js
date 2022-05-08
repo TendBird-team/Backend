@@ -21,20 +21,26 @@ class App {
   }
 
   initializeCors() {
-    const domains = ['*'];
-    this.app.use(
-      cors({
-        origin(origin, callback) {
-          const isTrue = domains.indexOf(origin) !== -1;
-          callback(null, isTrue);
-        },
-        allowHeaders: 'Content-Type',
-        methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
-        preflightContinue: false,
-        credentials: true,
-        optionsSuccessStatus: 200,
-      })
-    );
+    // const domains = ['*'];
+    // this.app.use(
+    //   cors({
+    //     origin(origin, callback) {
+    //       const isTrue = domains.indexOf(origin) !== -1;
+    //       callback(null, isTrue);
+    //     },
+    //     allowHeaders: 'Content-Type',
+    //     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
+    //     preflightContinue: false,
+    //     credentials: true,
+    //     optionsSuccessStatus: 200,
+    //   })
+    // );
+    const corsOpt = function(req, callbank) {
+      callbank(null, {origin: true});
+    };
+    this.app.options('*', cors(corsOpt));
+    this.app.post('*', cors(corsOpt))
+    this.app.use(cors(corsOpt))
   }
 
   initializeErrorHandling() {
