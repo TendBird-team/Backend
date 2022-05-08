@@ -23,7 +23,7 @@ class App {
   initializeCors() {
     // TODO: 실제 프로덕션 배포시에는 바꾸어야함.
     this.app.use(cors({
-      origin: '*',
+      origin: 'https://6277851978de7a22dbe2d20e--peaceful-parfait-bec695.netlify.app',
       allowHeaders: 'Content-Type',
       methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
       preflightContinue: true,
