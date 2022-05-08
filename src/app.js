@@ -21,20 +21,7 @@ class App {
   }
 
   initializeCors() {
-    // const domains = ['*'];
-    // this.app.use(
-    //   cors({
-    //     origin(origin, callback) {
-    //       const isTrue = domains.indexOf(origin) !== -1;
-    //       callback(null, isTrue);
-    //     },
-    //     allowHeaders: 'Content-Type',
-    //     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
-    //     preflightContinue: false,
-    //     credentials: true,
-    //     optionsSuccessStatus: 200,
-    //   })
-    // );
+    // TODO: 실제 프로덕션 배포시에는 바꾸어야함.
     const corsOpt = function(req, callbank) {
       callbank(null, {origin: true});
     };
