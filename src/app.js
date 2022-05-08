@@ -23,21 +23,28 @@ class App {
 
   initializeCors() {
     // TODO: 실제 프로덕션 배포시에는 바꾸어야함.
-    const domains = [
-      'https://6277851978de7a22dbe2d20e--peaceful-parfait-bec695.netlify.app',
-    ]
-    const corsOptions = {
-      origin(origin, callback) {
-        const isTrue = domains.indexOf(origin) !== -1
-        callback(null, isTrue)
-      },
-      allowHeaders: 'Content-Type',
-      methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
-      preflightContinue: false,
-      credentials: true,
-      optionsSuccessStatus: 200,
-    }
-    this.app.use(cors(corsOptions))
+    // const domains = [
+    //   'https://6277851978de7a22dbe2d20e--peaceful-parfait-bec695.netlify.app',
+    // ]
+    // const corsOptions = {
+    //   origin(origin, callback) {
+    //     const isTrue = domains.indexOf(origin) !== -1
+    //     callback(null, isTrue)
+    //   },
+    //   allowHeaders: 'Content-Type',
+    //   methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
+    //   preflightContinue: false,
+    //   credentials: true,
+    //   optionsSuccessStatus: 200,
+    // }
+    // this.app.use(cors(corsOptions))
+    app.use((req, res, next) => {
+      res.header('Access-Control-Allow-Credentials', true);
+      res.header('Access-Control-Allow-Origin', req.headers.origin);
+      res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,UPDATE,OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+      next();
+    });
   }
 
   initializeErrorHandling() {
