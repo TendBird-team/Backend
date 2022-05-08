@@ -22,11 +22,15 @@ class App {
 
   initializeCors() {
     // TODO: 실제 프로덕션 배포시에는 바꾸어야함.
-    const corsOpt = function(req, callbank) {
-      callbank(null, {origin: true});
-    };
+  
+    const corsOpt = {
+      origin: function(origin, callback){
+        const isTrue = domains.indexOf(origin) !== -1;
+        callback(null, isTrue);
+      },
+      credentials: true
+    }
     this.app.options('*', cors(corsOpt));
-    this.app.post('*', cors(corsOpt))
     this.app.use(cors(corsOpt))
   }
 
