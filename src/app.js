@@ -47,7 +47,11 @@ class App {
       autoRemoveInterval: 10,
       store: new MongoStore({
         mongoUrl: process.env.DB_URI,
-      })
+      }),
+      cookie: {
+        secure: true,
+        httpOnly: true,
+      },
     }))
     this.app.use(morgan('common'));
     this.app.use(express.json());
