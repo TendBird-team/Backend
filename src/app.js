@@ -35,28 +35,18 @@ class App {
   }
 
   initializeMiddleware() {
-    // this.app.use(session({
-    //   secret: process.env.SECRET,
-    //   saveUninitialized: true,
-    //   resave: false,
-    //   ttl: 14 * 24 * 60 * 60,
-    //   touchAfter: 24 * 3600,
-    //   autoRemove: 'interval',
-    //   autoRemoveInterval: 10,
-    //   store: new MongoStore({
-    //     mongoUrl: process.env.DB_URI,
-    //   })
-    // }))
     this.app.use(session({
-      secure: true,
       secret: process.env.SECRET,
-      resave: false,
       saveUninitialized: true,
-      cookie: {
-        httpOnly: true,
-        Secure: true
-      },
-    }));
+      resave: false,
+      ttl: 14 * 24 * 60 * 60,
+      touchAfter: 24 * 3600,
+      autoRemove: 'interval',
+      autoRemoveInterval: 10,
+      store: new MongoStore({
+        mongoUrl: process.env.DB_URI,
+      })
+    }))
     this.app.use(morgan('common'));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
