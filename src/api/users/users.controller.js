@@ -56,8 +56,8 @@ class UserController {
       throw new UnauthorizedException('Wrong user info.')
     }
     const result = await this.userService.firstLoginService(email, password, nickname)
-    res
-      .cookie('userEmail', result.email, { httpOnly: true, secure: true })
+    res.session.userEmail = result.email
+    res.session.save()
     return {
       data: result,
     }
@@ -73,7 +73,7 @@ class UserController {
   }
 
   async loginCheckController(req, res) {
-    const { userEmail } = req.session || req.cookie
+    const { userEmail } = req.session
     return {
       data: {
         userEmail,
