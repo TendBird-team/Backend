@@ -45,7 +45,7 @@ class App {
   }
 
   initializeMiddleware() {
-    this.app.enable('trust proxy')
+    this.app.set('trust proxy', 1);
     this.app.use(cookieParser(process.env.SECRET));
     this.app.use(
       session({
@@ -55,6 +55,7 @@ class App {
         cookie: {
           httpOnly: true,
           secure: true,
+          domain: 'https://6277851978de7a22dbe2d20e--peaceful-parfait-bec695.netlify.app',
         },
         name: 'session-cookie',
       })
