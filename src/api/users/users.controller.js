@@ -57,7 +57,7 @@ class UserController {
     }
     const result = await this.userService.firstLoginService(email, password, nickname)
     res
-      .cookie('userEmail', data.email, { httpOnly: true, secure: true })
+      .cookie('userEmail', result.email, { httpOnly: true, secure: true })
     return {
       data: result,
     }
