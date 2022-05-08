@@ -55,7 +55,12 @@ class UserController {
     if (email !== userEmail) {
       throw new UnauthorizedException('Wrong user info.')
     }
-    return this.userService.firstLoginService(email, password, nickname)
+    const result = await this.userService.firstLoginService(email, password, nickname)
+    res
+      .cookie('userEmail', data.email, { httpOnly: true, secure: true })
+    return {
+      data: result,
+    }
   }
 
   async logoutController(req, res) {
