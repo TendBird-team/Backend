@@ -45,6 +45,7 @@ class App {
   }
 
   initializeMiddleware() {
+    this.app.enable('trust proxy')
     this.app.use(cookieParser(process.env.SECRET));
     this.app.use(
       session({
