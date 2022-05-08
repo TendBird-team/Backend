@@ -26,7 +26,7 @@ class App {
       origin: 'https://6277851978de7a22dbe2d20e--peaceful-parfait-bec695.netlify.app',
       allowHeaders: 'Content-Type',
       methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
-      preflightContinue: true,
+      preflightContinue: false,
       credentials: true,
       optionsSuccessStatus: 200,
     }))
