@@ -24,7 +24,7 @@ class App {
   initializeCors() {
     // TODO: 실제 프로덕션 배포시에는 바꾸어야함.
     const domains = [
-      'https://6277851978de7a22dbe2d20e--peaceful-parfait-bec695.netlify.app',
+      'https://peaceful-parfait-bec695.netlify.app',
     ]
     const corsOptions = {
       origin(origin, callback) {
