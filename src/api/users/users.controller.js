@@ -36,6 +36,8 @@ class UserController {
 
     const user = await this.userService.loginService(email, password)
     req.session.userEmail = user.email
+    req.session.save();
+    console.log(user)
     return {
       message: 'Login success.',
       data: {
@@ -53,7 +55,12 @@ class UserController {
     if (email !== userEmail) {
       throw new UnauthorizedException('Wrong user info.')
     }
-    return this.userService.firstLoginService(email, password, nickname)
+    const result = await this.userService.firstLoginService(email, password, nickname)
+    res.session.userEmail = result.email
+    res.session.save()
+    return {
+      data: result,
+    }
   }
 
   async logoutController(req, res) {
@@ -66,7 +73,12 @@ class UserController {
   }
 
   async loginCheckController(req, res) {
-    return {}
+    const { userEmail } = req.session
+    return {
+      data: {
+        userEmail,
+      }
+    }
   }
 }
 
