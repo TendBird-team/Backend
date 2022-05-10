@@ -37,9 +37,7 @@ class UserController {
 
     const user = await this.userService.loginService(email, password)
     req.session.userEmail = user.email
-    const promiseSave = promisify(req.session.save)
-    await promiseSave()
-    console.log(req.session)
+    req.session.save()
     return {
       message: 'Login success.',
       data: user,

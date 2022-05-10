@@ -54,8 +54,8 @@ class App {
         saveUninitialized: true,
         secret: [process.env.SECRET, process.env.SECRET],
         cookie: {
-          httpOnly: true,
-          secure: true,
+          // httpOnly: true,
+          // // secure: true,
         },
         store: memoryStore,
         name: 'session-cookie',
