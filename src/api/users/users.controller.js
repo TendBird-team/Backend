@@ -2,7 +2,7 @@ const { Router } = require('express')
 const UserService = require('./users.service')
 const UserRepository = require('./users.repository')
 const wrapper = require('../../lib/request-handler')
-const { BadRequestException, UnauthorizedException } = require('../../common/exceptions')
+const { BadRequestException, UnauthorizedException, HttpException } = require('../../common/exceptions')
 const verifyUser = require('../../middlewares/auth.middeware')
 const EMAIL_REGEX = new RegExp('[a-zA-Z0-9-_]+@likelion.org')
 
@@ -57,10 +57,14 @@ class UserController {
     }
     const result = await this.userService.firstLoginService(email, password, nickname)
     res.session.userEmail = result.email
-    res.session.save()
-    return {
-      data: result,
-    }
+    res.session.save((err) => {
+      if (err) {
+        throw new HttpException(500, 'Session save failed.')
+      }
+      return {
+        data: result,
+      }
+    })
   }
 
   async logoutController(req, res) {
