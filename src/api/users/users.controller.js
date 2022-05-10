@@ -36,14 +36,20 @@ class UserController {
 
     const user = await this.userService.loginService(email, password)
     req.session.userEmail = user.email
-    req.session.save();
-    console.log(user)
-    return {
-      message: 'Login success.',
-      data: {
-        user,
-      },
-    }
+    req.session.save((err) => {
+      if (err) {
+        console.log(err)
+        throw new HttpException(500, 'Session save failed.') 
+      }
+      console.log('when go out.')
+      console.log(req.session)
+      return {
+        message: 'Login success.',
+        data: {
+          user,
+        },
+      }
+    });
   }
 
   async firstLoginController(req, res) {
