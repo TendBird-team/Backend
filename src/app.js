@@ -18,7 +18,7 @@ class App {
     this.initializeCors()
     this.initialzeControllers(controllers)
     this.initializeNotFoundMiddleware()
-    this.initializeErrorHandling()
+    this.initializeErrorHandling()    
   }
 
   initializeCors() {
@@ -45,17 +45,19 @@ class App {
   }
 
   initializeMiddleware() {
+    const memoryStore = new session.MemoryStore()
     this.app.set('trust proxy', 1);
     this.app.use(cookieParser(process.env.SECRET));
     this.app.use(
       session({
-        resave: false,
-        saveUninitialized: false,
+        resave: true,
+        saveUninitialized: true,
         secret: [process.env.SECRET, process.env.SECRET],
         cookie: {
           httpOnly: true,
           secure: true,
         },
+        store: memoryStore,
         name: 'session-cookie',
       })
     )
