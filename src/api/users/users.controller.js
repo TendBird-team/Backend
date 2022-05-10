@@ -6,6 +6,7 @@ const { BadRequestException, UnauthorizedException, HttpException } = require('.
 const verifyUser = require('../../middlewares/auth.middeware')
 const EMAIL_REGEX = new RegExp('[a-zA-Z0-9-_]+@likelion.org')
 
+const { promisify } = require('util')
 class UserController {
   constructor() {
     this.userService = new UserService(new UserRepository())
@@ -36,20 +37,13 @@ class UserController {
 
     const user = await this.userService.loginService(email, password)
     req.session.userEmail = user.email
-    req.session.save((err) => {
-      if (err) {
-        console.log(err)
-        throw new HttpException(500, 'Session save failed.') 
-      }
-      console.log('when go out.')
-      console.log(req.session)
-      return {
-        message: 'Login success.',
-        data: {
-          user,
-        },
-      }
-    });
+    const promiseSave = promisify(req.session.save)
+    await promiseSave()
+    console.log(req.session)
+    return {
+      message: 'Login success.',
+      data: user,
+    }
   }
 
   async firstLoginController(req, res) {
