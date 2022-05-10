@@ -1,10 +1,10 @@
 class MessageService {
   constructor(MessageRepository) {
-    this.MessageRepository = MessageRepository
+    this.messageRepository = MessageRepository
   }
 
-  async createService(email, message) {
-    return
+  async createService(userEmail, message, date) {
+    return this.messageRepository.createMessage(userEmail, message, date)
   }
 }
 
