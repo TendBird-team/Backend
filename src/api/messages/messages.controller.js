@@ -20,11 +20,13 @@ class MessageController {
 
   async viewController(req, res) {
     const { userEmail } = req.session
-    const { page } = req.Params
+    const { page } = req.query
     if (!userEmail) {
       throw new UnauthorizedException('Wrong user info.')
     }
 
+    res.send(req.query.page)
+    const messages = await this.messageService.viewService(page)
     return {
       message: 'Request successfully.',
       data: {
