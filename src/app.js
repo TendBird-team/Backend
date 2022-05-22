@@ -94,24 +94,41 @@ class App {
   initializeWebsocket(messageService) {
     this.app.ws('/messages', (ws, req) => {
       ws.on('message', async (msg) => {
-        const email = req?.user?.email
-        if (!email) {
-          return ws.send('request failed.')
+        const nickname = req?.user?.nickname
+        if (!nickname) {
+          return ws.send(JSON.stringify({
+            success: false,
+          }))
         }
         try {
           const receivedObj = JSON.parse(msg)
           const { message } = receivedObj
           if (!message) {
-            return ws.send('request failed.')
+            return ws.send(JSON.stringify({
+              success: false,
+            }))
           }
-          await messageService.createService(
-            email,
+          const { created_at } = await messageService.createService(
+            nickname,
             message
           )
-          return ws.send('request success.')
+          const { clients } = this.socket.getWss().clients
+          clients.forEach((client) => {
+            client.send(
+              JSON.stringify({
+                success: true,
+                data: {
+                  message,
+                  nickname,
+                  created_at,
+                },
+              })
+            )
+          })
         } catch (err) {
-          console.log(err)
-          return ws.send('request failed.')
+          return ws.send(JSON.stringify({
+            success: false,
+          }))
         }
       })
     })

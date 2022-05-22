@@ -1,15 +1,16 @@
 const MessageModel = require('./messages.model')
 class MessageService {
-  async viewService(page) {
-    const limit = 25
-    return MessageModel.find({})
-      .skip((page - 1) * limit)
+  async viewService(page, limit) {
+    return MessageModel
+      .find({})
+      .skip(page * limit)
       .limit(limit)
       .sort({ created_at: -1 })
+      .exec()
   }
 
-  async createService(email, message) {
-    return MessageModel.create({ email, message })
+  async createService(nickname, message) {
+    return MessageModel.create({ nickname, message })
   }
 }
 
