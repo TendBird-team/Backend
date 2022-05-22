@@ -8,16 +8,19 @@ const morgan = require('morgan')
 const favicon = require('serve-favicon')
 const path = require('path')
 const passport = require('passport')
+const expressWs = require('express-ws')
+
 require('dotenv').config()
 
 class App {
-  constructor(controllers) {
+  constructor(controllers, messageService) {
     this.app = express()
 
     this.initializeCors()
     this.initializeMiddleware()
     this.initializeSession()
-    this.initialzeControllers(controllers)
+    this.initializeWebsocket(messageService)
+    this.initializeControllers(controllers)
     this.initializeNotFoundMiddleware()
     this.initializeErrorHandling()    
   }
@@ -43,6 +46,7 @@ class App {
   }
 
   initializeMiddleware() {
+    this.socket = expressWs(this.app)
     this.app.use(morgan('common'))
     this.app.use(express.json({ extended: true, limit: '50mb' }))
     this.app.use(express.urlencoded({ extended: true, limit: '50mb' }))
@@ -81,9 +85,35 @@ class App {
     this.app.use(errorMiddleware)
   }
 
-  initialzeControllers(controllers) {
+  initializeControllers(controllers) {
     controllers.forEach((controller) => {
       this.app.use(controller.path, controller.router)
+    })
+  }
+
+  initializeWebsocket(messageService) {
+    this.app.ws('/messages', (ws, req) => {
+      ws.on('message', async (msg) => {
+        const email = req?.user?.email
+        if (!email) {
+          return ws.send('request failed.')
+        }
+        try {
+          const receivedObj = JSON.parse(msg)
+          const { message } = receivedObj
+          if (!message) {
+            return ws.send('request failed.')
+          }
+          await messageService.createService(
+            email,
+            message
+          )
+          return ws.send('request success.')
+        } catch (err) {
+          console.log(err)
+          return ws.send('request failed.')
+        }
+      })
     })
   }
 

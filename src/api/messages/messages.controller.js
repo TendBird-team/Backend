@@ -1,60 +1,34 @@
 const { Router } = require('express')
-const MessageService = require('./messages.service')
-const MessageRepository = require('./messages.repository')
 const wrapper = require('../../lib/request-handler')
 const { UnauthorizedException } = require('../../common/exceptions')
+const { verifyUser } = require('../../middlewares/auth.middeware')
 
 class MessageController {
-  constructor() {
-    this.messageService = new MessageService(new MessageRepository())
-
+  constructor(messageService) {
+    this.messageService = messageService
     this.router = Router()
+    this.path = '/messages'
     this.initializeRoutes()
   }
 
   initializeRoutes() {
     this.router
-      .get('/message', wrapper(this.viewController.bind(this)))
-      .post('/message', wrapper(this.createController.bind(this)))
+      .get('/', verifyUser, wrapper(this.viewController.bind(this)))
   }
 
   async viewController(req, res) {
-    const { userEmail } = req.session
-    const { page } = req.query
+    const { email } = req.user
+    const { page = 0 } = req.query
     if (!userEmail) {
       throw new UnauthorizedException('Wrong user info.')
     }
 
-    res.send(req.query.page)
     const messages = await this.messageService.viewService(page)
     return {
       message: 'Request successfully.',
       data: {
         page,
         messages,
-      },
-    }
-  }
-
-  async createController(req, res) {
-    const { userEmail } = req.session
-    const { message, date } = req.body
-    if (!userEmail) {
-      throw new UnauthorizedException('Wrong user info.')
-    }
-    if (!message || !date) {
-      throw new BadRequestException('Wrong body info.')
-    }
-
-    const msg = await this.messageService.createService(
-      userEmail,
-      message,
-      date
-    )
-    return {
-      message: 'Request successfully',
-      data: {
-        msg,
       },
     }
   }

@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt')
-const { UnauthorizedException } = require('../../common/exceptions')
 class UserService {
   constructor(UserRepository) {
     this.userRepository = UserRepository
