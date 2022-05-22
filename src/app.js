@@ -7,15 +7,16 @@ const cors = require('cors')
 const morgan = require('morgan')
 const favicon = require('serve-favicon')
 const path = require('path')
-const cookieParser = require('cookie-parser')
+const passport = require('passport')
 require('dotenv').config()
 
 class App {
   constructor(controllers) {
     this.app = express()
 
-    this.initializeMiddleware()
     this.initializeCors()
+    this.initializeMiddleware()
+    this.initializeSession()
     this.initialzeControllers(controllers)
     this.initializeNotFoundMiddleware()
     this.initializeErrorHandling()    
@@ -26,52 +27,58 @@ class App {
     const domains = [
       'https://peaceful-parfait-bec695.netlify.app',
     ]
-    const corsOptions = {
-      origin(origin, callback) {
-        const isTrue = domains.indexOf(origin) !== -1
-        callback(null, isTrue)
-      },
-      allowHeaders: 'Content-Type',
-      methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
-      preflightContinue: false,
-      credentials: true,
-      optionsSuccessStatus: 200,
-    }
-    this.app.use(cors(corsOptions))
+    this.app.use(
+      cors({
+        origin(origin, callback) {
+          const isTrue = domains.indexOf(origin) !== -1;
+          callback(null, isTrue);
+        },
+        allowHeaders: 'Origin, Content-Type, X-Requested-With, Accept',
+        methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
+        preflightContinue: false,
+        credentials: true,
+        optionsSuccessStatus: 200,
+      })
+    );
+  }
+
+  initializeMiddleware() {
+    this.app.use(morgan('common'))
+    this.app.use(express.json({ extended: true, limit: '50mb' }))
+    this.app.use(express.urlencoded({ extended: true, limit: '50mb' }))
+    this.app.use(favicon(path.join(__dirname, '../public/images', 'favicon.ico')))
+  }
+
+  initializeSession() {
+    this.app.use(
+      session({
+        secret: 'SECRET_CODE',
+        resave: true,
+        saveUninitialized: false,
+        cookie: {
+          maxAge: 1 * 60 * 60 * 1000,
+        },
+        store: MongoStore.create({
+          mongoUrl: process.env.DB_URI,
+          autoRemove: 'interval',
+          autoRemoveInterval: 10,
+          dbName: 'myFirstDatabase',
+        }),
+      })
+    )
+    this.app.use(passport.initialize())
+    this.app.use(passport.session())
+  }
+
+  initializeNotFoundMiddleware() {
+    this.app.use((req, _res, next) => {
+      if (!req.route) next(new NotFoundException())
+      next()
+    })
   }
 
   initializeErrorHandling() {
     this.app.use(errorMiddleware)
-  }
-
-  initializeMiddleware() {
-    const memoryStore = new session.MemoryStore()
-    this.app.set('trust proxy', 1);
-    this.app.use(cookieParser(process.env.SECRET));
-    this.app.use(
-      session({
-        resave: true,
-        saveUninitialized: true,
-        secret: [process.env.SECRET, process.env.SECRET],
-        cookie: {
-          // httpOnly: true,
-          // // secure: true,
-        },
-        store: memoryStore,
-        name: 'session-cookie',
-      })
-    )
-    this.app.use(morgan('common'));
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(favicon(path.join(__dirname, '../public/images', 'favicon.ico')));
-  }
-
-  initializeNotFoundMiddleware() {
-    this.app.use((req, res, next) => {
-      if (!req.route) next(new NotFoundException())
-      next()
-    })
   }
 
   initialzeControllers(controllers) {

@@ -1,15 +1,7 @@
-const { UnauthorizedException, BadRequestException } = require('../../common/exceptions')
+const { BadRequestException } = require('../../common/exceptions')
 const UserModel = require('./users.model')
 
 class UserRepository {
-  async findByEmail(email) {
-    const user = await UserModel.findOne({ email, }).exec()
-    if (!user) {
-      throw new UnauthorizedException('Login failed. (wrong email)')
-    }
-    return user
-  }
-
   async checkFirstLogin(email) {
     const user = await UserModel.findOne({ email, }).exec()
     if (!user) {
@@ -22,23 +14,17 @@ class UserRepository {
   }
 
   async updatePasswordAndNickname(email, password, nickname) {
-    return UserModel.updateOne(
+    return UserModel.findOneAndUpdate(
       { email },
       {
         password,
         nickname,
         firstlogin: false,
-      }
+      },
+      {
+        new: true,
+      },
     ).exec()
-  }
-
-  async create(email, hash, name, nickname) {
-    return UserModel.insertMany([{
-      email,
-      password: hash,
-      name,
-      nickname,
-    }])
   }
 }
 

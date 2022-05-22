@@ -2,11 +2,12 @@ const { Router } = require('express')
 const UserService = require('./users.service')
 const UserRepository = require('./users.repository')
 const wrapper = require('../../lib/request-handler')
+const passport = require('passport')
 const { BadRequestException, UnauthorizedException, HttpException } = require('../../common/exceptions')
-const verifyUser = require('../../middlewares/auth.middeware')
 const EMAIL_REGEX = new RegExp('[a-zA-Z0-9-_]+@likelion.org')
 
 const { promisify } = require('util')
+const { verifyUser } = require('../../middlewares/auth.middeware')
 class UserController {
   constructor() {
     this.userService = new UserService(new UserRepository())
@@ -18,67 +19,83 @@ class UserController {
 
   initializeRoutes() {
     this.router
-      .post('/login', wrapper(this.loginController.bind(this)))
+      .post('/login', this.loginController)
       .post('/firstlogin', verifyUser, wrapper(this.firstLoginController.bind(this)))
       .post('/logout', verifyUser, wrapper(this.logoutController.bind(this)))
       .get('/logincheck', verifyUser, wrapper(this.loginCheckController.bind(this)))
   }
 
-  async loginController(req, res) {
-    const { email, password } = req.body
-    if (!email || !password) {
-      throw new BadRequestException('Wrong body info.')
-    }
-
-    const isValidEmail = EMAIL_REGEX.test(email)
-    if (!isValidEmail) {
-      throw new BadRequestException('Invalid email.')
-    }
-
-    const user = await this.userService.loginService(email, password)
-    req.session.userEmail = user.email
-    req.session.save()
-    return {
-      message: 'Login success.',
-      data: user,
-    }
+  async loginController(req, res, next) {
+    passport.authenticate('local', (err, user, _info) => {
+      if (err) {
+        return next(err);
+      }
+      return req.login(user, (err) => {  
+        if (err) {
+          return next(err);
+        }
+        const filteredUser = {
+          email: user.email,
+          name: user.name,
+          nickname: user.nickname,
+          firstlogin: user.firstlogin,
+        }
+        return res.status(200).json({
+          success: true,
+          message: 'Login success.',
+          data: filteredUser,
+        })
+      })
+    })(req, res, next);
   }
 
-  async firstLoginController(req, res) {
-    const { userEmail } = req.session
+  async firstLoginController(req, res, next) {
+    const { email: existingEmail } = req.user
     const { email, password, nickname } = req.body
     if (!email || !password || !nickname) {
       throw new BadRequestException('Wrong body info.')
     }
-    if (email !== userEmail) {
+    if (email !== existingEmail) {
       throw new UnauthorizedException('Wrong user info.')
     }
-    const result = await this.userService.firstLoginService(email, password, nickname)
-    res.session.userEmail = result.email
-    res.session.save((err) => {
+    const updatedUser = await this.userService.firstLoginService(
+      email,
+      password,
+      nickname
+    )
+    req.login(updatedUser, (err) => {
       if (err) {
-        throw new HttpException(500, 'Session save failed.')
-      }
-      return {
-        data: result,
+        throw new HttpException(
+          500,
+          'Internal server error. (firstLoginController.'
+        )
       }
     })
-  }
-
-  async logoutController(req, res) {
-    if (req.session) {
-      req.session.destroy(() => {
-        req.session
-      })
+    const filteredUser = {
+      email: updatedUser.email,
+      name: updatedUser.name,
+      nickname: updatedUser.nickname,
+      firstlogin: updatedUser.firstlogin,
     }
-    return {}
+    return {
+      data: filteredUser,
+    }
   }
 
-  async loginCheckController(req, res) {
-    const { userEmail } = req.session
+  async logoutController(req, _res) {
+    req.logout();
+    await req.session.destroy();
+    return {};
+  }
+
+  async loginCheckController(req, _res) {
+    const { email, nickname, name, firstlogin } = req.user
     return {
       data: {
-        userEmail,
+        email,
+        name,
+        nickname,
+        firstlogin,
       }
     }
   }
