@@ -16,13 +16,15 @@ class MessageController {
   }
 
   async viewController(req, _res) {
-    const { page = 0, limit = 10 } = req.query
-
-    const { totalCount, messages } = await this.messageService.viewService(page, limit)
+    const { nickname } = req.user
+    const { counts = 0, limit = 8 } = req.query
+    const { totalCounts, messages } =
+      await this.messageService.viewService(counts, limit)
     return {
       message: 'Request successfully.',
       data: {
-        totalCount,
+        requester: nickname,
+        totalCounts,
         messages,
       },
     }
