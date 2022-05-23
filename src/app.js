@@ -94,10 +94,18 @@ class App {
   initializeWebsocket(messageService) {
     this.app.ws('/messages', (ws, req) => {
       ws.on('message', async (msg) => {
-        const nickname = req?.user?.nickname
+        const { user } = req
+        if (!user) {
+          return ws.send(JSON.stringify({
+            success: false,
+            errMessage: "Login first.",
+          }))
+        }
+        const { nickname } = user
         if (!nickname) {
           return ws.send(JSON.stringify({
             success: false,
+            errMessage: "Set Nickname first.",
           }))
         }
         try {
@@ -106,6 +114,7 @@ class App {
           if (!message) {
             return ws.send(JSON.stringify({
               success: false,
+              errMessage: `receivedObj is ${receivedObj}.`,
             }))
           }
           const { created_at } = await messageService.createService(
@@ -128,6 +137,7 @@ class App {
         } catch (err) {
           return ws.send(JSON.stringify({
             success: false,
+            errMessage: err,
           }))
         }
       })
